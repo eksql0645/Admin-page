@@ -107,13 +107,52 @@ const getOrderList = async (req, res, next) => {
     }
 
     res.status(200).json(orderList);
+
+const setOrder = async (req, res, next) => {
+  try {
+    const { orderNum } = req.params;
+    const { orderState, quantity, buyrCity, buyrZipx, vccode, user } = req.body;
+
+    // 주문내역 존재 확인
+    let order = await orderModel.findOrder(orderNum);
+    if (!order) {
+      throw new Error(errorCodes.thereIsNotOrder);
+    }
+
+    let updateInfo = {
+      order_state: orderState,
+      quantity,
+      buyr_city: buyrCity,
+      buyr_zipx: buyrZipx,
+      vccode,
+      user,
+      delivery_num:
+        orderState === "배송중" || orderState === "배송완료"
+          ? Math.floor(Date.now() + Math.random())
+          : null,
+    };
+
+    // 수정
+    const result = await orderModel.updateOrder(orderNum, updateInfo);
+
+    // 수정 결과가 없으면 서버에러
+    if (!result) {
+      throw new Error(errorCodes.serverError);
+    }
+
+    // 수정사항이 없으면 400에러
+    if (result[0] === 0) {
+      throw new Error(errorCodes.notUpdate);
+    }
+
+    // 수정된 객체 조회 후 반환
+    order = await orderModel.findOrder(orderNum);
+
+    res.status(200).json(order);
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = {
-  addOrder,
-  getOrder,
-  getOrderList,
-};
+module.exports = { addOrder, getOrder, getOrderList, setOrder };
+

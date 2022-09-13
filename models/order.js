@@ -48,8 +48,12 @@ const findOrderList = async (offset, whereClause) => {
   return orderList;
 };
 
-module.exports = {
-  createOrder,
-  findOrder,
-  findOrderList,
+const updateOrder = async (orderNum, updateInfo) => {
+  const order = await OrderList.update(updateInfo, {
+    where: { order_num: orderNum },
+  });
+  return order;
 };
+
+module.exports = { createOrder, findOrder, findOrderList, updateOrder };
+
