@@ -56,6 +56,10 @@ const setOrder = async (req, res, next) => {
       buyr_zipx: buyrZipx,
       vccode,
       user,
+      delivery_num:
+        orderState === "배송중" || orderState === "배송완료"
+          ? Math.floor(Date.now() + Math.random())
+          : null,
     };
 
     // 수정
@@ -71,22 +75,8 @@ const setOrder = async (req, res, next) => {
       throw new Error(errorCodes.notUpdate);
     }
 
+    // 수정된 객체 조회 후 반환
     order = await orderModel.findOrder(orderNum);
-
-    // 수정 후 state에 따라 송장번호, 도시 추가 / 제거
-    if (order.order_state === "배송중" || order.order_state === "배송완료") {
-      order.delivery_num = Math.floor(Date.now() + Math.random());
-      updateInfo = { delivery_num: order.delivery_num };
-      await orderModel.updateOrder(orderNum, updateInfo);
-    } else if (order.order_state === "결제취소") {
-      order.delivery_num = "";
-      order.buyr_city = "";
-      updateInfo = {
-        delivery_num: order.delivery_num,
-        buyr_city: order.buyr_city,
-      };
-      await orderModel.updateOrder(orderNum, updateInfo);
-    }
 
     res.status(200).json(order);
   } catch (err) {
