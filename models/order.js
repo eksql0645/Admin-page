@@ -32,4 +32,11 @@ const findOrder = async (orderNum) => {
   return order;
 };
 
-module.exports = { createOrder, findOrder };
+const updateOrder = async (orderNum, updateInfo) => {
+  const order = await OrderList.update(updateInfo, {
+    where: { order_num: orderNum },
+  });
+  return order;
+};
+
+module.exports = { createOrder, findOrder, updateOrder };
