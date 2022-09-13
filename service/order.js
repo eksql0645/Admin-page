@@ -38,4 +38,25 @@ const getOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { addOrder, getOrder };
+const getOrderList = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page);
+    let offset = 0;
+
+    if (page > 1) {
+      offset = 30 * (page - 1);
+    }
+
+    const orderList = await orderModel.findOrderList(offset);
+
+    if (!orderList) {
+      res.status(200).json({ message: errorCodes.thereIsNotOrder });
+    }
+
+    res.status(200).json(orderList);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { addOrder, getOrder, getOrderList };

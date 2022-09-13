@@ -32,4 +32,9 @@ const findOrder = async (orderNum) => {
   return order;
 };
 
-module.exports = { createOrder, findOrder };
+const findOrderList = async (offset) => {
+  const orderlist = await OrderList.findAll({ limit: 30, offset: offset });
+  return orderlist;
+};
+
+module.exports = { createOrder, findOrder, findOrderList };
