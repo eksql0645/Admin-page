@@ -107,6 +107,10 @@ const getOrderList = async (req, res, next) => {
     }
 
     res.status(200).json(orderList);
+  } catch (err) {
+    next(err);
+  }
+};
 
 const setOrder = async (req, res, next) => {
   try {
@@ -189,4 +193,3 @@ const deleteOrder = async (req, res, next) => {
 };
 
 module.exports = { addOrder, getOrder, getOrderList, setOrder, deleteOrder };
-
