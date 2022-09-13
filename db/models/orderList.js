@@ -37,6 +37,10 @@ module.exports = class OrderList extends Sequelize.Model {
           type: Sequelize.STRING(20),
           allowNull: false,
         },
+        delivery_num: {
+          type: Sequelize.STRING(20),
+          allowNull: true,
+        },
       },
       {
         sequelize,
