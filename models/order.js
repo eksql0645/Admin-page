@@ -1,4 +1,5 @@
 const { OrderList } = require("../db");
+const { Op } = require("sequelize");
 
 const createOrder = async (orderInfo) => {
   const {
@@ -32,6 +33,21 @@ const findOrder = async (orderNum) => {
   return order;
 };
 
+const findOrderList = async (offset, whereClause) => {
+  const orderList = await OrderList.findAll({
+    limit: 30,
+    offset: offset,
+    where: {
+      [Op.and]: [
+        whereClause.date,
+        whereClause.orderState,
+        whereClause.userName,
+      ],
+    },
+  });
+  return orderList;
+};
+
 const updateOrder = async (orderNum, updateInfo) => {
   const order = await OrderList.update(updateInfo, {
     where: { order_num: orderNum },
@@ -39,4 +55,5 @@ const updateOrder = async (orderNum, updateInfo) => {
   return order;
 };
 
-module.exports = { createOrder, findOrder, updateOrder };
+module.exports = { createOrder, findOrder, findOrderList, updateOrder };
+
