@@ -1,6 +1,7 @@
 const { couponModel } = require("../models");
 const moment = require("moment");
 const crypto = require("crypto");
+const errorCodes = require("../utils/errorCodes");
 
 const addCoupon = async (req, res, next) => {
   try {
@@ -27,4 +28,18 @@ const addCoupon = async (req, res, next) => {
   }
 };
 
-module.exports = { addCoupon };
+const getCoupon = async (req, res, next) => {
+  try {
+    const { couponNum } = req.params;
+
+    const coupon = await couponModel.findCoupon(couponNum);
+    if (!coupon) {
+      res.status(200).json({ message: errorCodes.thereIsNotCoupon });
+    }
+
+    res.status(200).json(coupon);
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports = { addCoupon, getCoupon };

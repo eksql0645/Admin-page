@@ -16,4 +16,11 @@ const createCoupon = async (couponInfo) => {
   return coupon;
 };
 
-module.exports = { createCoupon };
+const findCoupon = async (couponNum) => {
+  const coupon = await Coupon.findOne({
+    where: { coupon_num: couponNum },
+  });
+  return coupon;
+};
+
+module.exports = { createCoupon, findCoupon };
