@@ -1,7 +1,6 @@
 const { Router } = require("express");
 const router = Router();
-const orderRouter = require("./order");
+const { orderService } = require("../service");
 
-router.use("/orders", orderRouter);
-
+router.post("/", orderService.addOrder);
 module.exports = router;
