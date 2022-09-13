@@ -37,9 +37,14 @@ const findOrderList = async (offset, whereClause) => {
   const orderList = await OrderList.findAll({
     limit: 30,
     offset: offset,
-    where: { [Op.and]: [whereClause] },
+    where: {
+      [Op.and]: [
+        whereClause.date,
+        whereClause.orderState,
+        whereClause.userName,
+      ],
+    },
   });
-
   return orderList;
 };
 

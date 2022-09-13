@@ -46,27 +46,49 @@ const getOrder = async (req, res, next) => {
 const getOrderList = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page);
-    const { userName, startDate, endDate, orderState } = req.query;
+    let { startDate, endDate, userName, orderState } = req.query;
 
-    let whereClause = {};
+    const whereClause = {};
 
-    if (userName) {
-      whereClause = {
-        user: {
-          [Op.like]: userName,
-        },
-      };
-    } else if (startDate && endDate) {
-      whereClause = {
-        [Op.and]: [
-          { date: { [Op.gte]: startDate } },
-          { date: { [Op.lte]: endDate } },
+    if (!startDate && !endDate) {
+      endDate = new Date().toISOString().substring(0, 10).replace(/-/g, "");
+    }
+    if (!startDate || !endDate) {
+      whereClause.date = {
+        [Op.or]: [
+          {
+            date: { [Op.lte]: endDate },
+          },
+          {
+            date: { [Op.gte]: startDate },
+          },
         ],
       };
-    } else if (orderState) {
-      whereClause = {
+    } else if (startDate && endDate) {
+      whereClause.date = {
+        [Op.and]: [
+          {
+            date: { [Op.lte]: endDate },
+          },
+          {
+            date: { [Op.gte]: startDate },
+          },
+        ],
+      };
+    }
+
+    if (orderState) {
+      whereClause.orderState = {
         order_state: {
           [Op.like]: orderState,
+        },
+      };
+    }
+
+    if (userName) {
+      whereClause.userName = {
+        user: {
+          [Op.like]: userName,
         },
       };
     }
