@@ -5,12 +5,12 @@ module.exports = class Coupon extends Sequelize.Model {
     return super.init(
       {
         type: {
-          type: Sequelize.STRING(45),
+          type: Sequelize.ENUM("배송비", "정액", "정률"),
           allowNull: false,
         },
-        couponNum: {
+        coupon_num: {
           type: Sequelize.STRING(45),
-          allowNull: false,
+          allowNull: true,
           unique: true,
         },
         state: {
@@ -22,6 +22,10 @@ module.exports = class Coupon extends Sequelize.Model {
           type: Sequelize.STRING(45),
           defaultValue: null,
           allowNull: true,
+        },
+        description: {
+          type: Sequelize.STRING(45),
+          allowNull: false,
         },
         start_date: {
           type: Sequelize.STRING(45),
