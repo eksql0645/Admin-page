@@ -1,4 +1,5 @@
 const { orderModel } = require("../models");
+const errorCodes = require("../utils/errorCodes");
 
 const addOrder = async (req, res, next) => {
   try {
@@ -24,4 +25,17 @@ const addOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { addOrder };
+const getOrder = async (req, res, next) => {
+  try {
+    const { orderNum } = req.params;
+    const order = await orderModel.findOrder(orderNum);
+    if (!order) {
+      res.status(200).json({ message: errorCodes.thereIsNotOrder });
+    }
+    res.status(200).json(order);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { addOrder, getOrder };

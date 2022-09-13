@@ -27,4 +27,9 @@ const createOrder = async (orderInfo) => {
   return order;
 };
 
-module.exports = { createOrder };
+const findOrder = async (orderNum) => {
+  const order = await OrderList.findOne({ where: { order_num: orderNum } });
+  return order;
+};
+
+module.exports = { createOrder, findOrder };
