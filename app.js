@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const { sequelize } = require("./db");
 const dotenv = require("dotenv");
 const routes = require("./routes");
 const errorHandler = require("./middlewares/errorHandler");
@@ -11,6 +12,15 @@ dotenv.config();
 
 const app = express();
 app.set("port", process.env.PORT);
+
+sequelize
+  .sync({ force: false })
+  .then(() => {
+    console.log("Synced database.");
+  })
+  .catch((err) => {
+    console.log("Failed to sync database: " + err.message);
+  });
 
 app.use(morgan("dev"));
 app.use(cors());
