@@ -33,21 +33,18 @@ const findOrder = async (orderNum) => {
   return order;
 };
 
-const findOrderList = async (offset) => {
-  const orderlist = await OrderList.findAll({ limit: 30, offset: offset });
-  return orderlist;
-};
-
-const searchOrderList = async (userName) => {
+const findOrderList = async (offset, whereClause) => {
   const orderList = await OrderList.findAll({
-    where: {
-      user: {
-        [Op.like]: userName,
-      },
-    },
+    limit: 30,
+    offset: offset,
+    where: { [Op.and]: [whereClause] },
   });
 
   return orderList;
 };
 
-module.exports = { createOrder, findOrder, findOrderList, searchOrderList };
+module.exports = {
+  createOrder,
+  findOrder,
+  findOrderList,
+};
