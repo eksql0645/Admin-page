@@ -35,7 +35,6 @@ module.exports = class User extends Sequelize.Model {
     );
   }
   static associate(db) {
-    db.User.hasMany(db.OrderList, { foreignKey: "user", sourceKey: "id" });
     db.User.hasMany(db.Coupon, {
       foreignKey: "user",
       sourceKey: "id",

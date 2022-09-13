@@ -1,4 +1,5 @@
 const { OrderList } = require("../db");
+const { Op } = require("sequelize");
 
 const createOrder = async (orderInfo) => {
   const {
@@ -37,4 +38,16 @@ const findOrderList = async (offset) => {
   return orderlist;
 };
 
-module.exports = { createOrder, findOrder, findOrderList };
+const searchOrderList = async (userName) => {
+  const orderList = await OrderList.findAll({
+    where: {
+      user: {
+        [Op.like]: userName,
+      },
+    },
+  });
+
+  return orderList;
+};
+
+module.exports = { createOrder, findOrder, findOrderList, searchOrderList };

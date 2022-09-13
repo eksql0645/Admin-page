@@ -37,6 +37,10 @@ module.exports = class OrderList extends Sequelize.Model {
           type: Sequelize.STRING(20),
           allowNull: false,
         },
+        user: {
+          type: Sequelize.STRING(15),
+          allowNull: true,
+        },
       },
       {
         sequelize,
@@ -51,7 +55,6 @@ module.exports = class OrderList extends Sequelize.Model {
     );
   }
   static associate(db) {
-    db.OrderList.belongsTo(db.User, { foreignKey: "user", targetKey: "id" });
     db.OrderList.hasMany(db.Coupon, {
       foreignKey: "order",
       sourceKey: "id",

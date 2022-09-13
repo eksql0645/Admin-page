@@ -19,6 +19,7 @@ const addOrder = async (req, res, next) => {
     };
 
     const order = await orderModel.createOrder(orderInfo);
+
     res.status(201).json(order);
   } catch (err) {
     next(err);
@@ -28,9 +29,12 @@ const addOrder = async (req, res, next) => {
 const getOrder = async (req, res, next) => {
   try {
     const { orderNum } = req.params;
+
     const order = await orderModel.findOrder(orderNum);
+
     if (!order) {
       res.status(200).json({ message: errorCodes.thereIsNotOrder });
+      return;
     }
     res.status(200).json(order);
   } catch (err) {
@@ -51,6 +55,7 @@ const getOrderList = async (req, res, next) => {
 
     if (!orderList) {
       res.status(200).json({ message: errorCodes.thereIsNotOrder });
+      return;
     }
 
     res.status(200).json(orderList);
@@ -59,4 +64,25 @@ const getOrderList = async (req, res, next) => {
   }
 };
 
-module.exports = { addOrder, getOrder, getOrderList };
+const seekOrderList = async (req, res, next) => {
+  try {
+    const { userName } = req.query;
+
+    const orderList = await orderModel.searchOrderList(userName);
+
+    if (!orderList) {
+      res.status(200).json({ message: errorCodes.thereIsNotOrder });
+      return;
+    }
+
+    if (orderList.length === 0) {
+      throw new Error(errorCodes.thereIsNotOrder);
+    }
+
+    res.status(200).json(orderList);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { addOrder, getOrder, getOrderList, seekOrderList };
