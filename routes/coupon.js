@@ -1,12 +1,26 @@
 const { Router } = require("express");
 const router = Router();
 const { couponService } = require("../service");
+const {
+  addCouponValidator,
+  getAndDeleteCouponValidator,
+  getCouponListValidator,
+  setCouponValidator,
+} = require("../middlewares/validator/couponValidator");
 
-router.post("/", couponService.addCoupon);
+router.post("/", addCouponValidator(), couponService.addCoupon);
 router.get("/stats", couponService.getCouponStats);
-router.get("/:couponNum", couponService.getCoupon);
-router.get("/", couponService.getCouponList);
-router.patch("/:couponNum", couponService.setCoupon);
-router.delete("/:couponNum", couponService.deleteCoupon);
+router.get(
+  "/:couponNum",
+  getAndDeleteCouponValidator(),
+  couponService.getCoupon
+);
+router.get("/", getCouponListValidator(), couponService.getCouponList);
+router.patch("/:couponNum", setCouponValidator(), couponService.setCoupon);
+router.delete(
+  "/:couponNum",
+  getAndDeleteCouponValidator(),
+  couponService.deleteCoupon
+);
 
 module.exports = router;
