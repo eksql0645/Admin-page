@@ -9,7 +9,7 @@ const createOrder = async (orderInfo) => {
     buyrCountry,
     buyrZipx,
     vccode,
-    user,
+    userName,
     date,
     orderNum,
   } = orderInfo;
@@ -21,7 +21,7 @@ const createOrder = async (orderInfo) => {
     buyr_country: buyrCountry,
     buyr_zipx: buyrZipx,
     vccode,
-    user,
+    user_name: userName,
     date,
     order_num: orderNum,
   });

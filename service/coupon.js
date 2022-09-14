@@ -4,11 +4,17 @@ const crypto = require("crypto");
 const errorCodes = require("../utils/errorCodes");
 const { Op } = require("sequelize");
 
+// 쿠폰 생성
 const addCoupon = async (req, res, next) => {
   try {
     const { type, discount, monthPeriod, description } = req.body;
+
     const startDate = moment();
-    const endDate = startDate.clone().add(monthPeriod, "months");
+
+    // monthPeriod가 있으면 달단위로 endDate를 설정하고 없으면 당일로 설정
+    const endDate = monthPeriod
+      ? startDate.clone().add(monthPeriod, "months")
+      : startDate;
 
     // type은 배송비, 정액, 정률만 가능
     const couponInfo = {
@@ -29,14 +35,14 @@ const addCoupon = async (req, res, next) => {
   }
 };
 
+// 쿠폰 조회
 const getCoupon = async (req, res, next) => {
   try {
     const { couponNum } = req.params;
 
     const coupon = await couponModel.findCoupon(couponNum);
     if (!coupon) {
-      res.status(200).json({ message: errorCodes.thereIsNotCoupon });
-      return;
+      throw new Error({ message: errorCodes.thereIsNotCoupon });
     }
 
     res.status(200).json(coupon);
@@ -45,21 +51,27 @@ const getCoupon = async (req, res, next) => {
   }
 };
 
+// 쿠폰 전체 조회 (상태 필터)
 const getCouponList = async (req, res, next) => {
   try {
     const { state } = req.query;
+    const page = parseInt(req.query.page);
 
-    let query = {};
+    let offset = 0;
+
+    if (page > 1) {
+      offset = 30 * (page - 1);
+    }
+
+    let whereClause = {};
 
     if (state) {
-      query = {
-        where: {
-          state: { [Op.like]: state },
-        },
+      whereClause = {
+        state: { [Op.like]: state },
       };
     }
 
-    const coupon = await couponModel.findCouponList(query);
+    const coupon = await couponModel.findCouponList(offset, whereClause);
 
     if (coupon.length === 0) {
       res.status(200).json({ message: errorCodes.thereIsNotCoupon });
@@ -72,6 +84,7 @@ const getCouponList = async (req, res, next) => {
   }
 };
 
+// 쿠폰 통계 - 사용된 쿠폰의 타입별 총할인액 / 사용횟수
 const getCouponStats = async (req, res, next) => {
   try {
     const coupon = await couponModel.findCouponStats();
@@ -82,6 +95,7 @@ const getCouponStats = async (req, res, next) => {
   }
 };
 
+// 쿠폰 수정
 const setCoupon = async (req, res, next) => {
   try {
     const { couponNum } = req.params;
@@ -110,9 +124,6 @@ const setCoupon = async (req, res, next) => {
 
     // 수정된 객체 반환
     coupon = await couponModel.findCoupon(couponNum);
-    if (!coupon) {
-      throw new Error(errorCodes.updatedButThereIsNotCoupon);
-    }
 
     res.status(200).json(coupon);
   } catch (err) {
@@ -120,6 +131,7 @@ const setCoupon = async (req, res, next) => {
   }
 };
 
+// 쿠폰 삭제
 const deleteCoupon = async (req, res, next) => {
   try {
     const { couponNum } = req.params;
@@ -140,7 +152,7 @@ const deleteCoupon = async (req, res, next) => {
       throw new Error(errorCodes.notDelete);
     }
 
-    res.status(200).json({ message: "삭제되었습니다." });
+    res.status(200).json({ message: "쿠폰이 삭제되었습니다." });
   } catch (err) {
     next(err);
   }

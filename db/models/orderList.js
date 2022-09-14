@@ -45,6 +45,10 @@ module.exports = class OrderList extends Sequelize.Model {
           type: Sequelize.STRING(20),
           allowNull: true,
         },
+        user_name: {
+          type: Sequelize.STRING(45),
+          allowNull: true,
+        },
       },
       {
         sequelize,
