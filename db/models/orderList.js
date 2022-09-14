@@ -29,6 +29,10 @@ module.exports = class OrderList extends Sequelize.Model {
           type: Sequelize.STRING(40),
           allowNull: true,
         },
+        buyr_country: {
+          type: Sequelize.STRING(45),
+          allowNull: false,
+        },
         buyr_zipx: {
           type: Sequelize.STRING(20),
           allowNull: false,
@@ -36,9 +40,6 @@ module.exports = class OrderList extends Sequelize.Model {
         vccode: {
           type: Sequelize.STRING(20),
           allowNull: false,
-        },
-        user: {
-          type: Sequelize.STRING(15),
         },
         delivery_num: {
           type: Sequelize.STRING(20),
