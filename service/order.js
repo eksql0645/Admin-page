@@ -1,25 +1,89 @@
-const { orderModel } = require("../models");
+const { orderModel, couponModel } = require("../models");
 const errorCodes = require("../utils/errorCodes");
+const { getDeliveryCost, getCountry } = require("../utils/xlsx.js");
+const {
+  setFlatCoupon,
+  setFixedRateCoupon,
+} = require("../utils/priceCalculator");
+const { exchangeAPI } = require("../utils/exchange");
 const { Op } = require("sequelize");
+const moment = require("moment");
+const canUseCoupon = require("../utils/canUseCoupon");
 
 const addOrder = async (req, res, next) => {
   try {
-    const { quantity, price, buyrCity, buyrCountry, buyrZipx, vccode, user } =
-      req.body;
-
-    const orderInfo = {
+    const {
       quantity,
-      price,
       buyrCity,
       buyrCountry,
       buyrZipx,
       vccode,
       user,
-      orderNum: Math.floor(Date.now() + Math.random()),
-      date: new Date().toISOString().substring(0, 10).replace(/-/g, ""),
+      couponNum,
+    } = req.body;
+    let { price } = req.body;
+
+    // buyrCountry를 통해 국가명 가져오기
+    const country = getCountry(buyrCountry);
+
+    // 국가에 따른 배송비 가져오기
+    let deliveryCost = getDeliveryCost(quantity, country);
+
+    // KR이 아니라면 배송비를 달러로 환전
+    if (buyrCountry !== "KR") {
+      deliveryCost = await exchangeAPI(deliveryCost);
+      deliveryCost = Number(deliveryCost.toFixed(2));
+    }
+
+    price += deliveryCost;
+    price = Number(price.toFixed(2));
+
+    let result = {};
+
+    // 쿠폰이 있다면 price + 배송비 - 쿠폰가
+    if (couponNum) {
+      // 쿠폰 존재, 기간, 상태 확인
+      const coupon = await canUseCoupon(couponNum);
+
+      // 쿠폰 타입별로 price 계산
+      const couponInfo = {
+        price,
+        discount: coupon.discount,
+        buyrCountry,
+      };
+
+      if (coupon.type === "배송비") {
+        result.price = price - deliveryCost;
+        result.discount = getDeliveryCost(quantity, country);
+      } else if (coupon.type === "정액") {
+        result = await setFlatCoupon(couponInfo);
+        console.log(result);
+      } else if (coupon.type === "정률") {
+        result = setFixedRateCoupon(couponInfo);
+      }
+    }
+
+    // 주문 생성
+    const orderInfo = {
+      quantity,
+      price: result.price,
+      buyrCity,
+      buyrCountry,
+      buyrZipx,
+      vccode,
+      user,
+      orderNum: Math.floor(moment() + Math.random()),
+      date: moment().format("YYYYMMDD"),
     };
 
     const order = await orderModel.createOrder(orderInfo);
+
+    //  쿠폰 데이터 업뎃
+    await couponModel.updateCoupon(couponNum, {
+      state: "사용완료",
+      discount: result.discount,
+      order: order.id,
+    });
 
     res.status(201).json(order);
   } catch (err) {
