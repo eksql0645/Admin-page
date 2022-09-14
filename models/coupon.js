@@ -23,8 +23,12 @@ const findCoupon = async (couponNum) => {
   return coupon;
 };
 
-const findCouponList = async (query) => {
-  const coupon = await Coupon.findAll(query);
+const findCouponList = async (offset, whereClause) => {
+  const coupon = await Coupon.findAll({
+    limit: 30,
+    offset: offset,
+    where: whereClause,
+  });
   return coupon;
 };
 

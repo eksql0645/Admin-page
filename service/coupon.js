@@ -55,18 +55,23 @@ const getCoupon = async (req, res, next) => {
 const getCouponList = async (req, res, next) => {
   try {
     const { state } = req.query;
+    const page = parseInt(req.query.page);
 
-    let query = {};
+    let offset = 0;
+
+    if (page > 1) {
+      offset = 30 * (page - 1);
+    }
+
+    let whereClause = {};
 
     if (state) {
-      query = {
-        where: {
-          state: { [Op.like]: state },
-        },
+      whereClause = {
+        state: { [Op.like]: state },
       };
     }
 
-    const coupon = await couponModel.findCouponList(query);
+    const coupon = await couponModel.findCouponList(offset, whereClause);
 
     if (coupon.length === 0) {
       res.status(200).json({ message: errorCodes.thereIsNotCoupon });
@@ -147,7 +152,7 @@ const deleteCoupon = async (req, res, next) => {
       throw new Error(errorCodes.notDelete);
     }
 
-    res.status(200).json({ message: "삭제되었습니다." });
+    res.status(200).json({ message: "쿠폰이 삭제되었습니다." });
   } catch (err) {
     next(err);
   }
