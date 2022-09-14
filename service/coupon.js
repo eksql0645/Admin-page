@@ -42,8 +42,7 @@ const getCoupon = async (req, res, next) => {
 
     const coupon = await couponModel.findCoupon(couponNum);
     if (!coupon) {
-      res.status(200).json({ message: errorCodes.thereIsNotCoupon });
-      return;
+      throw new Error({ message: errorCodes.thereIsNotCoupon });
     }
 
     res.status(200).json(coupon);
