@@ -3,6 +3,7 @@ const moment = require("moment");
 const crypto = require("crypto");
 const errorCodes = require("../utils/errorCodes");
 const { Op } = require("sequelize");
+const canUseCoupon = require("../utils/canUseCoupon");
 
 // 쿠폰 생성
 const addCoupon = async (req, res, next) => {
@@ -101,10 +102,7 @@ const setCoupon = async (req, res, next) => {
     const { couponNum } = req.params;
     const { state, discount, monthPeriod, description } = req.body;
 
-    let coupon = await couponModel.findCoupon(couponNum);
-    if (!coupon) {
-      throw new Error(errorCodes.thereIsNotCoupon);
-    }
+    let coupon = await canUseCoupon(couponNum);
 
     const updateInfo = {
       state,
@@ -136,13 +134,13 @@ const deleteCoupon = async (req, res, next) => {
   try {
     const { couponNum } = req.params;
 
-    let coupon = await couponModel.findCoupon(couponNum);
+    const coupon = await canUseCoupon(couponNum);
     if (!coupon) {
       throw new Error(errorCodes.thereIsNotCoupon);
     }
 
     const updateInfo = {
-      state: "사용완료",
+      state: "사용불가",
       end_date: coupon.start_date,
     };
 
@@ -152,7 +150,7 @@ const deleteCoupon = async (req, res, next) => {
       throw new Error(errorCodes.notDelete);
     }
 
-    res.status(200).json({ message: "쿠폰이 삭제되었습니다." });
+    res.status(200).json({ message: "쿠폰이 사용불가 처리되었습니다." });
   } catch (err) {
     next(err);
   }

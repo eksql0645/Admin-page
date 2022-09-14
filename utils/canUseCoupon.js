@@ -10,8 +10,8 @@ const canUseCoupon = async (couponNum) => {
       throw new Error(errorCodes.thereIsNotCoupon);
     }
     // 쿠폰 사용유무 확인
-    if (coupon.state === "사용완료") {
-      throw new Error(errorCodes.alreadyUsedCoupon);
+    if (coupon.state === "사용완료" || coupon.state === "사용불가") {
+      throw new Error(errorCodes.canNotUsedCoupon);
     }
     // 쿠폰 기간 확인
     if (coupon.end_date < moment().format("YYYYMMDD")) {
