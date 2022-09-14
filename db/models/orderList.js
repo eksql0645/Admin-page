@@ -47,7 +47,7 @@ module.exports = class OrderList extends Sequelize.Model {
       },
       {
         sequelize,
-        timestamps: true,
+        timestamps: false,
         underscored: false,
         modelName: "OrderList",
         tableName: "order_lists",
