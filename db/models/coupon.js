@@ -38,7 +38,7 @@ module.exports = class Coupon extends Sequelize.Model {
       },
       {
         sequelize,
-        timestamps: true,
+        timestamps: false,
         underscored: false,
         modelName: "Coupon",
         tableName: "coupons",
