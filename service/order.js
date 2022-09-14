@@ -214,7 +214,7 @@ const deleteOrder = async (req, res, next) => {
       throw new Error(errorCodes.notUpdate);
     }
 
-    res.status(200).json({ message: "삭제되었습니다." });
+    res.status(200).json({ message: "주문이 취소되었습니다." });
   } catch (err) {
     next(err);
   }
