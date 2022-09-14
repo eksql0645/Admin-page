@@ -6,10 +6,11 @@ const {
   setFixedRateCoupon,
 } = require("../utils/priceCalculator");
 const { exchangeAPI } = require("../utils/exchange");
-const { Op } = require("sequelize");
 const moment = require("moment");
 const canUseCoupon = require("../utils/canUseCoupon");
+const getWhereClause = require("../utils/getWhereClause");
 
+// 주문 생성
 const addOrder = async (req, res, next) => {
   try {
     const {
@@ -18,8 +19,8 @@ const addOrder = async (req, res, next) => {
       buyrCountry,
       buyrZipx,
       vccode,
-      user,
       couponNum,
+      userName,
     } = req.body;
     let { price } = req.body;
 
@@ -35,29 +36,29 @@ const addOrder = async (req, res, next) => {
       deliveryCost = Number(deliveryCost.toFixed(2));
     }
 
+    // 부동소수점 방지로 toFixed 사용
     price += deliveryCost;
     price = Number(price.toFixed(2));
 
     let result = {};
 
-    // 쿠폰이 있다면 price + 배송비 - 쿠폰가
+    // 쿠폰이 있다면 price = price + 배송비 - 쿠폰가
     if (couponNum) {
       // 쿠폰 존재, 기간, 상태 확인
       const coupon = await canUseCoupon(couponNum);
 
-      // 쿠폰 타입별로 price 계산
       const couponInfo = {
         price,
         discount: coupon.discount,
         buyrCountry,
       };
 
+      // 쿠폰 타입별로 price 계산
       if (coupon.type === "배송비") {
         result.price = price - deliveryCost;
         result.discount = getDeliveryCost(quantity, country);
       } else if (coupon.type === "정액") {
         result = await setFlatCoupon(couponInfo);
-        console.log(result);
       } else if (coupon.type === "정률") {
         result = setFixedRateCoupon(couponInfo);
       }
@@ -66,24 +67,26 @@ const addOrder = async (req, res, next) => {
     // 주문 생성
     const orderInfo = {
       quantity,
-      price: result.price,
+      price: result === {} ? result.price : price,
       buyrCity,
       buyrCountry,
       buyrZipx,
       vccode,
-      user,
       orderNum: Math.floor(moment() + Math.random()),
       date: moment().format("YYYYMMDD"),
+      userName,
     };
 
     const order = await orderModel.createOrder(orderInfo);
 
-    //  쿠폰 데이터 업뎃
-    await couponModel.updateCoupon(couponNum, {
-      state: "사용완료",
-      discount: result.discount,
-      order: order.id,
-    });
+    if (couponNum) {
+      //  쿠폰 데이터 수정
+      await couponModel.updateCoupon(couponNum, {
+        state: "사용완료",
+        discount: result.discount,
+        order: order.id,
+      });
+    }
 
     res.status(201).json(order);
   } catch (err) {
@@ -91,6 +94,7 @@ const addOrder = async (req, res, next) => {
   }
 };
 
+// 주문 조회
 const getOrder = async (req, res, next) => {
   try {
     const { orderNum } = req.params;
@@ -98,8 +102,7 @@ const getOrder = async (req, res, next) => {
     const order = await orderModel.findOrder(orderNum);
 
     if (!order) {
-      res.status(200).json({ message: errorCodes.thereIsNotOrder });
-      return;
+      throw new Error({ message: errorCodes.thereIsNotOrder });
     }
     res.status(200).json(order);
   } catch (err) {
@@ -107,55 +110,13 @@ const getOrder = async (req, res, next) => {
   }
 };
 
+// 주문 전체조회 (필터, 검색, 페이지네이션)
 const getOrderList = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page);
-    let { startDate, endDate, userName, orderState } = req.query;
 
-    const whereClause = {};
-
-    if (!startDate && !endDate) {
-      endDate = new Date().toISOString().substring(0, 10).replace(/-/g, "");
-    }
-    if (!startDate || !endDate) {
-      whereClause.date = {
-        [Op.or]: [
-          {
-            date: { [Op.lte]: endDate },
-          },
-          {
-            date: { [Op.gte]: startDate },
-          },
-        ],
-      };
-    } else if (startDate && endDate) {
-      whereClause.date = {
-        [Op.and]: [
-          {
-            date: { [Op.lte]: endDate },
-          },
-          {
-            date: { [Op.gte]: startDate },
-          },
-        ],
-      };
-    }
-
-    if (orderState) {
-      whereClause.orderState = {
-        order_state: {
-          [Op.like]: orderState,
-        },
-      };
-    }
-
-    if (userName) {
-      whereClause.userName = {
-        user: {
-          [Op.like]: userName,
-        },
-      };
-    }
+    // 조건에 따라 where절 가져오기
+    const whereClause = getWhereClause(req.query);
 
     let offset = 0;
 
@@ -176,10 +137,12 @@ const getOrderList = async (req, res, next) => {
   }
 };
 
+// 주문 수정
 const setOrder = async (req, res, next) => {
   try {
     const { orderNum } = req.params;
-    const { orderState, quantity, buyrCity, buyrZipx, vccode, user } = req.body;
+    const { orderState, quantity, buyrCity, buyrZipx, vccode, userName } =
+      req.body;
 
     // 주문내역 존재 확인
     let order = await orderModel.findOrder(orderNum);
@@ -193,10 +156,10 @@ const setOrder = async (req, res, next) => {
       buyr_city: buyrCity,
       buyr_zipx: buyrZipx,
       vccode,
-      user,
+      user_name: userName,
       delivery_num:
         orderState === "배송중" || orderState === "배송완료"
-          ? Math.floor(Date.now() + Math.random())
+          ? Math.floor(moment() + Math.random())
           : null,
     };
 
@@ -209,7 +172,7 @@ const setOrder = async (req, res, next) => {
     }
 
     // 수정사항이 없으면 400에러
-    if (result[0] === 0) {
+    if (!result[0]) {
       throw new Error(errorCodes.notUpdate);
     }
 
@@ -222,6 +185,7 @@ const setOrder = async (req, res, next) => {
   }
 };
 
+// 주문 취소
 const deleteOrder = async (req, res, next) => {
   try {
     const { orderNum } = req.params;
