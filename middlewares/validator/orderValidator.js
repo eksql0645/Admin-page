@@ -23,13 +23,13 @@ function addOrderValidator() {
       .bail()
       .withMessage(errorCodes.required)
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt),
+      .withMessage(errorCodes.onlyUseInt),
     body("price")
       .notEmpty()
       .bail()
       .withMessage(errorCodes.required)
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt),
+      .withMessage(errorCodes.onlyUseInt),
     body("buyrCity")
       .notEmpty()
       .bail()
@@ -78,7 +78,7 @@ function getAndDeleteOrderValidator() {
       .bail()
       .withMessage(errorCodes.required)
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt),
+      .withMessage(errorCodes.onlyUseInt),
     index,
   ];
 }
@@ -100,19 +100,19 @@ function getOrderListValidator() {
       .bail()
       .withMessage(errorCodes.required)
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt),
+      .withMessage(errorCodes.onlyUseInt),
     query("startDate")
       .optional()
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt)
+      .withMessage(errorCodes.onlyUseInt)
       .isLength({ min: 8, max: 8 })
-      .withMessage(errorCodes.DateFormat),
+      .withMessage(errorCodes.dateFormat),
     query("endDate")
       .optional()
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt)
+      .withMessage(errorCodes.onlyUseInt)
       .isLength({ min: 8, max: 8 })
-      .withMessage(errorCodes.DateFormat),
+      .withMessage(errorCodes.dateFormat),
     query("userName")
       .optional()
       .isLength({ max: 10 })
@@ -120,7 +120,7 @@ function getOrderListValidator() {
     query("orderState")
       .optional()
       .isIn(["결제완료", "결제취소", "배송중", "배송완료"])
-      .withMessage(errorCodes.OrderStateFormat),
+      .withMessage(errorCodes.orderStateFormat),
     index,
   ];
 }
@@ -145,8 +145,8 @@ function setOrderValidator() {
       .bail()
       .withMessage(errorCodes.required)
       .isInt()
-      .withMessage(errorCodes.OnlyUseInt),
-    body("quantity").optional().isInt().withMessage(errorCodes.OnlyUseInt),
+      .withMessage(errorCodes.onlyUseInt),
+    body("quantity").optional().isInt().withMessage(errorCodes.onlyUseInt),
     body("buyrCity")
       .optional()
       .isLength({ max: 40 })
@@ -166,7 +166,7 @@ function setOrderValidator() {
     body("orderState")
       .optional()
       .isIn(["결제완료", "결제취소", "배송중", "배송완료"])
-      .withMessage(errorCodes.OrderStateFormat),
+      .withMessage(errorCodes.orderStateFormat),
     index,
   ];
 }

@@ -19,12 +19,12 @@ function addCouponValidator() {
       .bail()
       .withMessage(errorCodes.required)
       .isIn(["배송비", "정액", "정률"])
-      .withMessage(errorCodes.CouponTypeFormat),
+      .withMessage(errorCodes.couponTypeFormat),
     body("discount")
       .optional()
       .isLength({ max: 45 })
       .withMessage(errorCodes.tooLongString),
-    body("monthPeriod").optional().isInt().withMessage(errorCodes.OnlyUseInt),
+    body("monthPeriod").optional().isInt().withMessage(errorCodes.onlyUseInt),
     body("description")
       .optional()
       .isLength({ max: 45 })
@@ -54,7 +54,7 @@ function getAndDeleteCouponValidator() {
 /**
  * <getCouponList 검증 로직>
  *
- * state: optional, 발급완료, 사용완료, 기간만료 max(45)
+ * state: optional, 발급완료, 사용완료, 사용불가, 기간만료 max(45)
  *
  */
 function getCouponListValidator() {
@@ -63,8 +63,8 @@ function getCouponListValidator() {
       .optional()
       .isLength({ max: 45 })
       .withMessage(errorCodes.tooLongString)
-      .isIn(["발급완료", "사용완료", "기간만료"])
-      .withMessage(errorCodes.CouponStateFormat),
+      .isIn(["발급완료", "사용완료", "사용불가", "기간만료"])
+      .withMessage(errorCodes.couponStateFormat),
     index,
   ];
 }
@@ -73,7 +73,7 @@ function getCouponListValidator() {
  * <setCoupon 검증 로직>
  *
  * couponNum: required, min: 12, max: 15
- * state: optional, 발급완료, 사용완료, 기간만료 max(45)
+ * state: optional, 발급완료, 사용완료, 사용불가, 기간만료 max(45)
  * discount: optional, max(45)
  * monthPeriod: optional, int
  * description: optional, max(45)
@@ -92,13 +92,13 @@ function setCouponValidator() {
       .optional()
       .isLength({ max: 45 })
       .withMessage(errorCodes.tooLongString)
-      .isIn(["발급완료", "사용완료", "기간만료"])
-      .withMessage(errorCodes.CouponStateFormat),
+      .isIn(["발급완료", "사용완료", "사용불가", "기간만료"])
+      .withMessage(errorCodes.couponStateFormat),
     body("discount")
       .optional()
       .isLength({ max: 45 })
       .withMessage(errorCodes.tooLongString),
-    body("monthPeriod").optional().isInt().withMessage(errorCodes.OnlyUseInt),
+    body("monthPeriod").optional().isInt().withMessage(errorCodes.onlyUseInt),
     body("description")
       .optional()
       .isLength({ max: 45 })

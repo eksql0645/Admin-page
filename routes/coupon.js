@@ -260,8 +260,8 @@ router.delete(
  * paths:
  *   /api/coupons/{couponNum}:
  *    delete:
- *      summary:  "쿠폰 삭제"
- *      description: "쿠폰 번호에 해당하는 쿠폰을 삭제합니다."
+ *      summary:  "쿠폰 사용 불가 처리"
+ *      description: "쿠폰 번호에 해당하는 쿠폰의 상태를 사용 불가 처리합니다."
  *      tags: [Admin Page - Coupon]
  *      parameters :
  *         - in : path
@@ -272,14 +272,14 @@ router.delete(
  *              type : String
  *      responses:
  *        "200":
- *          description: "쿠폰 삭제 메세지를 반환합니다."
+ *          description: "쿠폰 사용불가 메세지를 반환합니다."
  *          content:
  *            application/json:
  *              schema:
  *                  type : object
  *                  example:
  *                          {
- *                              "message": "쿠폰이 삭제되었습니다."
+ *                              "message": "쿠폰이 사용불가 처리되었습니다."
  *                          }
  *        "400":
  *          description: Bad request
