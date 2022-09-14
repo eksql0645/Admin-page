@@ -41,9 +41,17 @@ const findCouponStats = async () => {
   return coupon;
 };
 
+const updateCoupon = async (couponNum, updateInfo) => {
+  const coupon = await Coupon.update(updateInfo, {
+    where: { coupon_num: couponNum },
+  });
+  return coupon;
+};
+
 module.exports = {
   createCoupon,
   findCoupon,
   findCouponList,
   findCouponStats,
+  updateCoupon,
 };

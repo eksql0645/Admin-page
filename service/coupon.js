@@ -82,4 +82,48 @@ const getCouponStats = async (req, res, next) => {
   }
 };
 
-module.exports = { addCoupon, getCoupon, getCouponList, getCouponStats };
+const setCoupon = async (req, res, next) => {
+  try {
+    const { couponNum } = req.params;
+    const { state, discount, monthPeriod, description } = req.body;
+
+    let coupon = await couponModel.findCoupon(couponNum);
+    if (!coupon) {
+      throw new Error(errorCodes.thereIsNotCoupon);
+    }
+
+    const updateInfo = {
+      state,
+      discount,
+      end_date: moment(coupon.start_date)
+        .clone()
+        .add(monthPeriod, "months")
+        .format("YYYYMMDD"),
+      description,
+    };
+
+    const isUpdated = await couponModel.updateCoupon(couponNum, updateInfo);
+
+    if (!isUpdated[0]) {
+      throw new Error(errorCodes.notUpdate);
+    }
+
+    // 수정된 객체 반환
+    coupon = await couponModel.findCoupon(couponNum);
+    if (!coupon) {
+      throw new Error(errorCodes.updatedButThereIsNotCoupon);
+    }
+
+    res.status(200).json(coupon);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  addCoupon,
+  getCoupon,
+  getCouponList,
+  getCouponStats,
+  setCoupon,
+};
