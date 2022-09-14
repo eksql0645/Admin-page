@@ -37,7 +37,6 @@ const setFixedRateCoupon = (couponInfo) => {
     // 음수가 나오지 않게 절댓값처리
     price = Math.abs(price);
 
-    console.log("price", price);
     const result = { price, discount };
     return result;
   } catch (err) {
