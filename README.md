@@ -1,13 +1,11 @@
 # 목차
-[Anonymous Board](#-Anonymous-Board-Service)
+[Admin Page](#-Admin-Page)
 
 [요구사항 분석](#-요구사항-분석)
 
 [모델링](#-모델링)
 
 [API 문서](#-API-문서)
-
-[테스트 케이스](#-테스트-케이스)
 
 [컨벤션](#-컨벤션)
 
