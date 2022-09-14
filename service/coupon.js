@@ -120,10 +120,37 @@ const setCoupon = async (req, res, next) => {
   }
 };
 
+const deleteCoupon = async (req, res, next) => {
+  try {
+    const { couponNum } = req.params;
+
+    let coupon = await couponModel.findCoupon(couponNum);
+    if (!coupon) {
+      throw new Error(errorCodes.thereIsNotCoupon);
+    }
+
+    const updateInfo = {
+      state: "사용완료",
+      end_date: coupon.start_date,
+    };
+
+    const isDeleted = await couponModel.updateCoupon(couponNum, updateInfo);
+
+    if (!isDeleted[0]) {
+      throw new Error(errorCodes.notDelete);
+    }
+
+    res.status(200).json({ message: "삭제되었습니다." });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   addCoupon,
   getCoupon,
   getCouponList,
   getCouponStats,
   setCoupon,
+  deleteCoupon,
 };
