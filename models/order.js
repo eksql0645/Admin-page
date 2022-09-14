@@ -56,4 +56,3 @@ const updateOrder = async (orderNum, updateInfo) => {
 };
 
 module.exports = { createOrder, findOrder, findOrderList, updateOrder };
-

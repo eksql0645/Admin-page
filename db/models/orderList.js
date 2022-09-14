@@ -22,7 +22,7 @@ module.exports = class OrderList extends Sequelize.Model {
           allowNull: false,
         },
         price: {
-          type: Sequelize.INTEGER,
+          type: Sequelize.FLOAT,
           allowNull: false,
         },
         buyr_city: {
